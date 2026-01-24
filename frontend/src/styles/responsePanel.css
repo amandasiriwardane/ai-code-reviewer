@@ -1,0 +1,8 @@
+.response pre {
+  background: #020617;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  color: #a5f3fc;
+  white-space: pre-wrap;
+}

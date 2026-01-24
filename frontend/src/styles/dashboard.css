@@ -1,0 +1,24 @@
+.dashboard {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.left-panel,
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.card {
+  background: #1e293b; /* dark slate */
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
