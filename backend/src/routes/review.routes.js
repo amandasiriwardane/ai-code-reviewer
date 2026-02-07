@@ -1,6 +1,7 @@
 import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toolDefinitions, runTool } from "../utils/tools.js";
+import Review from "../models/Review.js";
 
 const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -85,6 +86,25 @@ router.post("/", async (req, res) => {
     res.json({ ...parsedData, modelUsed });
   } catch (e) {
     res.json({ summary: finalContent, issues: [], fixedCode: null, modelUsed });
+  }
+  const savedReview = await Review.create({
+    code,
+    language,
+    summary: parsedData.summary,
+    modelUsed,
+    issues: parsedData.issues,
+    fixedCode: parsedData.fixedCode
+  });
+
+  res.json({ ...parsedData, modelUsed, id: savedReview._id });
+});
+
+router.get("/history", async (req, res) => {
+  try {
+    const history = await Review.find().sort({ createdAt: -1 }).limit(10);
+    res.json(history);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch history" });
   }
 });
 
