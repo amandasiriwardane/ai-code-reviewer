@@ -1,71 +1,80 @@
 import express from "express";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toolDefinitions, runTool } from "../utils/tools.js";
 
 const router = express.Router();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// 1. Initialize Gemini with your API Key
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 router.post("/", async (req, res) => {
   try {
-    const { code , language} = req.body;
+    const { code, language } = req.body;
 
-    // 1. Initialize the conversation
-    const messages = [
-      { 
-        role: "system", 
-        content: `You are an expert Code Reviewer. 
-        1. ALWAYS run 'checkSecurity'.
-        2. ALWAYS run 'validateSyntax' with the language set to '${language}'.
-        3. If there are syntax errors, STOP and report them. Do not review the logic until syntax is fixed.`
-      },
-      { role: "user", content: code }
-    ];
-
-    // 2. First Call: Ask OpenAI what to do
-    let response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Cost effective
-      messages: messages,
-      tools: toolDefinitions,
-      tool_choice: "auto", // Let AI decide
+    // 2. Setup the Model with Tools
+    // Gemini 1.5 Flash is recommended for its high free-tier limits
+    const model = genAI.getGenerativeModel({
+      model: "gemini-3-flash-preview",
+      // Gemini expects function definitions in a specific format
+      tools: [{ functionDeclarations: toolDefinitions.map(t => t.function) }],
     });
 
-    let message = response.choices[0].message;
+    // 3. Start a Chat Session
+    const chat = model.startChat({
+      history: [
+        {
+          role: "user",
+          parts: [{ text: `System: You are an expert Code Reviewer. 
+            1. ALWAYS run 'checkSecurity'.
+            2. ALWAYS run 'validateSyntax' with the language set to '${language}'.
+            3. If there are syntax errors, STOP and report them. Do not review the logic until syntax is fixed.
+            4. Your final response MUST be in JSON format with keys: "summary", "issues" (array), and "fixedCode".` }],
+        }
+      ],
+    });
 
-    // 3. The Loop: If AI wants to use tools, run them
-    while (message.tool_calls) {
-      // Add the AI's request to history
-      messages.push(message);
+    // 4. Send the code to the Agent
+    let result = await chat.sendMessage(code);
+    let response = result.response;
 
-      for (const toolCall of message.tool_calls) {
-        const toolName = toolCall.function.name;
-        const toolArgs = JSON.parse(toolCall.function.arguments);
+    // 5. The Loop: Handle Function Calls (Tools)
+    // Gemini automatically identifies if a function needs to be called
+    while (response.functionCalls()) {
+      const toolResults = [];
 
-        // Execute the actual Javascript function
-        const toolResult = runTool(toolName, toolArgs);
+      for (const call of response.functionCalls()) {
+        const { name, args } = call;
+        
+        console.log(`[Gemini Agent] Executing Tool: ${name}`);
+        const result = runTool(name, args);
 
-        // Add the result to history
-        messages.push({
-          role: "tool",
-          tool_call_id: toolCall.id,
-          content: JSON.stringify(toolResult),
+        toolResults.push({
+          functionResponse: {
+            name,
+            response: { result }
+          }
         });
       }
 
-      // 4. Second Call: Send tool results back to OpenAI for final answer
-      response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: messages,
-      });
-
-      message = response.choices[0].message;
+      // Send tool results back to the model to get the next response
+      result = await chat.sendMessage(toolResults);
+      response = result.response;
     }
 
-    // 5. Final Response
-    res.json({ review: message.content });
+    // 6. Final Clean up and Response
+    // Gemini might wrap JSON in markdown backticks; we strip them for safety
+    let finalContent = response.text().replace(/```json|```/gi, "").trim();
+    
+    try {
+      res.json(JSON.parse(finalContent));
+    } catch (e) {
+      // Fallback if the model returns plain text instead of JSON
+      res.json({ summary: finalContent, issues: [], fixedCode: null });
+    }
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Agent failed" });
+    console.error("Gemini Error:", err);
+    res.status(500).json({ error: "Agent failed with Gemini API" });
   }
 });
 

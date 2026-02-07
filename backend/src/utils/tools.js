@@ -64,36 +64,30 @@ const validators = {
 
 export const toolDefinitions = [
   {
-    type: "function",
-    function: {
-      name: "validateSyntax",
-      description: "Checks if the code has valid syntax for the given language.",
-      parameters: {
-        type: "object",
-        properties: {
-          code: { type: "string", description: "The code to check" },
-          language: { 
-            type: "string", 
-            enum: ["javascript", "java", "python", "c", "cpp", "dart"],
-            description: "The programming language of the code"
-          }
-        },
-        required: ["code", "language"]
-      }
+    name: "validateSyntax",
+    description: "Checks if the code has valid syntax for the given language.",
+    parameters: {
+      type: "OBJECT", // Gemini often prefers uppercase for parameter types
+      properties: {
+        code: { type: "STRING", description: "The code to check" },
+        language: { 
+          type: "STRING", 
+          enum: ["javascript", "java", "python", "c", "cpp", "dart"],
+          description: "The programming language of the code"
+        }
+      },
+      required: ["code", "language"]
     }
   },
   {
-    type: "function",
-    function: {
-      name: "checkSecurity",
-      description: "Scans code for hardcoded secrets like API keys or passwords.",
-      parameters: {
-        type: "object",
-        properties: {
-          code: { type: "string", description: "The code to scan" }
-        },
-        required: ["code"]
-      }
+    name: "checkSecurity",
+    description: "Scans code for hardcoded secrets like API keys or passwords.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        code: { type: "STRING", description: "The code to scan" }
+      },
+      required: ["code"]
     }
   }
 ];
