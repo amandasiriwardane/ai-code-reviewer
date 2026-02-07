@@ -81,22 +81,31 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const parsedData = JSON.parse(finalContent);
-    // We send back modelUsed so the frontend can display it
-    res.json({ ...parsedData, modelUsed });
-  } catch (e) {
-    res.json({ summary: finalContent, issues: [], fixedCode: null, modelUsed });
-  }
-  const savedReview = await Review.create({
-    code,
-    language,
-    summary: parsedData.summary,
-    modelUsed,
-    issues: parsedData.issues,
-    fixedCode: parsedData.fixedCode
-  });
+    // 1. Parse the AI response first
+    let parsedData;
+    try {
+      parsedData = JSON.parse(finalContent);
+    } catch (e) {
+      // Fallback if AI didn't return perfect JSON
+      parsedData = { summary: finalContent, issues: [], fixedCode: null };
+    }
 
-  res.json({ ...parsedData, modelUsed, id: savedReview._id });
+    const savedReview = await Review.create({
+      code,
+      language,
+      summary: parsedData.summary,
+      modelUsed,
+      issues: parsedData.issues,
+      fixedCode: parsedData.fixedCode
+    });
+
+    // We include the database _id so the frontend knows it was saved
+    res.json({ ...parsedData, modelUsed, id: savedReview._id });
+
+  } catch (err) {
+    console.error("Database or Processing Error:", err);
+    res.status(500).json({ error: "Failed to process and save review" });
+  }
 });
 
 router.get("/history", async (req, res) => {
