@@ -49,7 +49,11 @@ router.post("/", async (req, res) => {
   const { code, language } = req.body;
   
   // List models in order of preference
-  const modelQueue = ["gemini-3-flash-preview", "gemini-1.5-flash"];
+  const modelQueue = [
+    "gemini-3-flash-preview",  // 1. Try the smartest (Low Quota)
+    "gemini-2.5-flash",        // 2. Fallback to the stable workhorse (High Quota)
+    "gemini-2.5-flash-lite"    // 3. Final fallback for speed
+  ];
   let finalContent = "";
   let modelUsed = "";
 
@@ -58,16 +62,20 @@ router.post("/", async (req, res) => {
       console.log(`[Review System] Attempting with: ${currentModel}`);
       finalContent = await runAgentSession(currentModel, code, language);
       modelUsed = currentModel;
-      break; // Success! Exit the loop.
+      break; // Success!
     } catch (err) {
-      // If we hit a rate limit (429) and there's another model in the queue, continue
-      if (err.status === 429 && currentModel !== modelQueue[modelQueue.length - 1]) {
-        console.warn(`[Quota Alert] ${currentModel} limit reached. Switching to fallback...`);
+      // Check for Rate Limit (429) OR Missing Model (404)
+      const canRetry = err.status === 429 || err.status === 404;
+      const isLastModel = currentModel === modelQueue[modelQueue.length - 1];
+
+      if (canRetry && !isLastModel) {
+        console.warn(`[System] ${currentModel} unavailable (Status: ${err.status}). Trying next...`);
         continue; 
       }
-      // Otherwise, it's a real error we can't recover from
-      console.error(`[Fatal Error] ${currentModel} failed:`, err.message);
-      return res.status(500).json({ error: "Agent analysis failed completely." });
+      
+      // If it's the last model or a different error (Safety, 500), stop.
+      console.error(`[Fatal Error] Final attempt failed on ${currentModel}:`, err.message);
+      return res.status(500).json({ error: "Analysis failed. Please try again later." });
     }
   }
 
