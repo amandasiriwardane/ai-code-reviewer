@@ -1,14 +1,32 @@
 .header {
-  padding-bottom: 1rem;
+  height: 60px; /* Slightly increased height to accommodate vertical stack */
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start; /* Aligns the whole brand block to the left */
   border-bottom: 1px solid #1e293b;
+  background-color: #0f172a;
+  padding: 0 1.2rem;
+  box-sizing: border-box;
 }
 
-.header h1 {
-  font-size: 1.8rem;
-  font-weight: 600;
+.header-brand {
+  display: flex;
+  flex-direction: column; /* Stacks logo on top, text on bottom */
+  align-items: flex-start; /* Pins both to the left wall */
+  gap: 4px; /* This is the "gap" you want to minimize */
 }
 
-.header p {
+.header-logo {
+  max-height: 19px; /* Slimmer logo for a better vertical fit */
+  width: auto;
+  object-fit: contain;
+  margin: 0; /* Ensures no extra space around the image */
+}
+
+.header-subtitle {
+  font-size: 0.7rem !important;
+  margin: 0; /* CRITICAL: Removes the default browser spacing */
   color: #94a3b8;
-  margin-top: 0.4rem;
+  line-height: 1; /* Tightens the text line height */
 }

@@ -1,48 +1,99 @@
+/* The Main Card Container */
 .prompt-card {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   padding: 1rem;
-  background: white; /* Or your dark theme color */
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background: #1e293b; /* Matches your dashboard cards */
+  border-radius: 0.75rem;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  flex: 1; /* Allows it to grow within the scrollable panel */
+  min-height: 500px; /* Ensures a good workspace even when empty */
 }
 
+/* Header within the Editor Card */
 .prompt-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.prompt-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #f8fafc;
+}
+
+/* Controls (Select and Buttons) */
 .controls {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-/* Important: The editor needs a constrained container */
-.editor-container {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  overflow: hidden;
+/* Language Dropdown Styling */
+.controls select {
+  padding: 6px 12px;
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
 }
 
-.language-select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+.controls select:focus {
+  border-color: #3b82f6;
 }
 
+/* Analyze Button */
 .analyze-btn {
-  padding: 8px 16px;
-  background-color: #007bff;
+  padding: 8px 20px;
+  background-color: #3b82f6; /* Modern Blue */
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.analyze-btn:hover:not(:disabled) {
+  background-color: #2563eb;
+  transform: translateY(-1px);
 }
 
 .analyze-btn:disabled {
-  background-color: #ccc;
+  background-color: #475569;
   cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Apply AI Fix Button (✨) */
+.fix-btn {
+  padding: 8px 16px;
+  background-color: #10b981; /* Emerald Green */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.fix-btn:hover {
+  background-color: #059669;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+/* Editor Container */
+.editor-container {
+  flex: 1; /* Fills remaining space in the card */
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1e1e1e; /* Standard Monaco background */
 }

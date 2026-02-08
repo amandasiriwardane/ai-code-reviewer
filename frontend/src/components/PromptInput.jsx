@@ -98,13 +98,14 @@ export default function PromptInput({code, setCode, setResult }) {
       </div>
       <div className="editor-container" style={{ border: '1px solid #444', borderRadius: '4px', overflow: 'hidden' }}>
         <Editor
-          height="400px"
+          height="100%"
+          minHeight="400px"
           theme="vs-dark"
           language={language}
           value={code}
           onMount={handleEditorDidMount}
           onChange={(val) => setCode(val || "")}
-          options={{ minimap: { enabled: false }, fontSize: 14, automaticLayout: true }}
+          options={{ minimap: { enabled: false }, fontSize: 14, automaticLayout: true ,padding:{top:5}}}
         />
       </div>
     </div>

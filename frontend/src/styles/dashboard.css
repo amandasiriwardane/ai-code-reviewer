@@ -1,24 +1,118 @@
-.dashboard {
-  min-height: 100vh;
-  padding: 2rem;
+/* 1. Global Reset: Lock the browser viewport */
+html, body, #root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevents the whole page from bouncing/scrolling */
+  background: #0f172a;
 }
 
-.main-content {
+/* 2. Outer Container */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* 3. Sidebar: Fixed height, smooth transitions */
+.sidebar-wrapper {
+  background: #1e293b;
+  height: 100%;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #334155;
+  position: relative;
+  z-index: 10;
+}
+
+.sidebar-wrapper.expanded { width: 280px; }
+.sidebar-wrapper.collapsed { width: 60px; }
+
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #3b82f6;
+  font-size: 1.5rem;
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+/* 4. Main Content Area (Header + Workspace) */
+.main-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Removing padding here allows the header to touch the sides */
+  min-width: 0;
+  height: 100vh;
+  align-items: stretch!important; /* This is the "magic" line for full-width headers */
+}
+/* 5. SLIMMED HEADER: Optimized for screen real-estate */
+.header {
+  height: 60px; /* Force a small, fixed height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: 1.3rem; /* Smaller title */
+  margin: 0;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.header p {
+  font-size: 0.8rem; /* Smaller subtext */
+  margin: 2px 0 0 0;
+  color: #94a3b8;
+}
+
+/* 6. WORKSPACE: The scrollable heart of the app */
+.workspace {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 1.2rem;
+  flex: 1; /* Automatically takes all remaining height */
+  min-height: 0; /* CRITICAL: Allows children to scroll instead of expanding */
+  padding-bottom: 0.5rem;
 }
 
-.left-panel,
-.right-panel {
+/* 7. INTERNAL PANELS: These scroll, the page does not */
+.scrollable-panel {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 8px;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
 }
+
+/* 8. Professional "Ghost" Scrollbars */
+.scrollable-panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scrollable-panel::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+.scrollable-panel::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+/* 9. Card Style Refinement */
 .card {
-  background: #1e293b; /* dark slate */
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: #1e293b;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #334155;
 }

@@ -2,13 +2,20 @@ import ReactMarkdown from 'react-markdown';
 import "../styles/responsePanel.css";
 
 export default function ResponsePanel({ result }) { 
-  if (!result) return <div className="card response"><p>Waiting for code...</p></div>;
+  // Professional empty state with the shimmer effect logic
+  if (!result) {
+    return (
+      <div className="card response empty-state">
+        <div className="shimmer-line"></div>
+        <p>Awaiting code for analysis...</p>
+      </div>
+    );
+  }
 
   const summary = result.summary || "";
   const issues = Array.isArray(result.issues) ? result.issues : [];
 
   const getIssueDetails = (issue) => {
-    // Check if the issue is a string (standard AI string format)
     if (typeof issue === 'string') {
       const match = issue.match(/Line (\d+)/i);
       return { 
@@ -16,7 +23,6 @@ export default function ResponsePanel({ result }) {
         message: issue 
       };
     }
-    // Check if the issue is already an object {line, message}
     if (typeof issue === 'object' && issue !== null) {
       return { 
         line: issue.line || "??", 
@@ -30,7 +36,8 @@ export default function ResponsePanel({ result }) {
     <div className="card response">
       <div className="review-summary">
         <h3>Summary</h3>
-        <p>{summary}</p>
+        {/* Render markdown to support bold, lists, and backticks in the AI summary */}
+        <ReactMarkdown>{summary}</ReactMarkdown>
       </div>
 
       <div className="issues-section">
@@ -39,9 +46,14 @@ export default function ResponsePanel({ result }) {
           const { line, message } = getIssueDetails(issue);
           return (
             <div key={index} className="issue-card error">
-              <span className="badge-error">ERROR</span>
-              <span className="line-number">Line {line}</span>
-              <p className="issue-message">{message}</p>
+              <div className="issue-header">
+                <span className="badge-error">ERROR</span>
+                <span className="line-number">Line {line}</span>
+              </div>
+              {/* Markdown support for individual issue descriptions */}
+              <div className="issue-message">
+                <ReactMarkdown>{message}</ReactMarkdown>
+              </div>
             </div>
           );
         })}
