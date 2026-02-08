@@ -3,12 +3,12 @@
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  background: #1e293b; /* Matches your dashboard cards */
+  background: #1e293b; 
   border-radius: 0.75rem;
   border: 1px solid #334155;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  flex: 1; /* Allows it to grow within the scrollable panel */
-  min-height: 500px; /* Ensures a good workspace even when empty */
+  flex: 1; 
+  min-height: 500px; 
 }
 
 /* Header within the Editor Card */
@@ -50,7 +50,7 @@
 /* Analyze Button */
 .analyze-btn {
   padding: 8px 20px;
-  background-color: #3b82f6; /* Modern Blue */
+  background-color: #3b82f6; 
   color: white;
   border: none;
   border-radius: 6px;
@@ -74,7 +74,7 @@
 /* Apply AI Fix Button (✨) */
 .fix-btn {
   padding: 8px 16px;
-  background-color: #10b981; /* Emerald Green */
+  background-color: #10b981; 
   color: white;
   border: none;
   border-radius: 6px;
@@ -91,7 +91,7 @@
 
 /* Editor Container */
 .editor-container {
-  flex: 1; /* Fills remaining space in the card */
+  flex: 1; 
   border: 1px solid #334155;
   border-radius: 8px;
   overflow: hidden;

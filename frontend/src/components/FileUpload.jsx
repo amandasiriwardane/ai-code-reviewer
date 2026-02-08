@@ -6,7 +6,7 @@ export default function FileUpload({ setCode }) {
       reader.onload = (event) => {
         setCode(event.target.result); // Sends text to Monaco
       };
-      reader.readAsText(file); //
+      reader.readAsText(file); 
     }
   };
 

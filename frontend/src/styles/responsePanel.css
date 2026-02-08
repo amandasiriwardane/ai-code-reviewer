@@ -35,11 +35,11 @@
 
 /* Individual Issue Cards */
 .issue-card {
-  background: #0f172a; /* Darker contrast for the issue itself */
+  background: #0f172a; 
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-left: 4px solid #ef4444; /* Red stripe for errors */
+  border-left: 4px solid #ef4444; 
   transition: transform 0.2s ease;
 }
 

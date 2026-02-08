@@ -46,14 +46,14 @@ html, body, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0; /* Removing padding here allows the header to touch the sides */
+  padding: 0; 
   min-width: 0;
   height: 100vh;
-  align-items: stretch!important; /* This is the "magic" line for full-width headers */
+  align-items: stretch!important; 
 }
 /* 5. SLIMMED HEADER: Optimized for screen real-estate */
 .header {
-  height: 60px; /* Force a small, fixed height */
+  height: 60px; 
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -62,14 +62,14 @@ html, body, #root {
 }
 
 .header h1 {
-  font-size: 1.3rem; /* Smaller title */
+  font-size: 1.3rem;
   margin: 0;
   font-weight: 700;
   color: #f8fafc;
 }
 
 .header p {
-  font-size: 0.8rem; /* Smaller subtext */
+  font-size: 0.8rem;
   margin: 2px 0 0 0;
   color: #94a3b8;
 }
@@ -79,8 +79,8 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   gap: 1.2rem;
-  flex: 1; /* Automatically takes all remaining height */
-  min-height: 0; /* CRITICAL: Allows children to scroll instead of expanding */
+  flex: 1; 
+  min-height: 0; 
   padding-bottom: 0.5rem;
 }
 
