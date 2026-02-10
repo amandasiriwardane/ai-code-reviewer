@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import reviewRoutes from "./routes/review.routes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import authRoutes from "./routes/authRoutes.js"; 
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.get("/health", (req, res) => {
   res.json({ status: "Backend running" });
 });
 
+app.use("/api/auth", authRoutes); 
 app.use("/api/review", reviewRoutes);
 
 export default app;
