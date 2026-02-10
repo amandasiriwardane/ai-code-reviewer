@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { _useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/signup.css'; 
 import { API_BASE_URL } from '../api/config.js';
@@ -9,7 +9,7 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
