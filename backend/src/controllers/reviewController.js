@@ -1,12 +1,10 @@
-import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toolDefinitions, runTool } from "../utils/tools.js";
 import Review from "../models/Review.js";
 
-const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Helper function to handle the Agent Loop for a specific model
+// Private Helper for the Agent Loop
 const runAgentSession = async (modelName, code, language) => {
   const model = genAI.getGenerativeModel({
     model: modelName,
@@ -29,7 +27,6 @@ const runAgentSession = async (modelName, code, language) => {
   let result = await chat.sendMessage(code);
   let response = result.response;
 
-  // Tool Handling Loop
   while (response.functionCalls()) {
     const toolResults = [];
     for (const call of response.functionCalls()) {
@@ -46,51 +43,37 @@ const runAgentSession = async (modelName, code, language) => {
   return response.text().replace(/```json|```/gi, "").trim();
 };
 
-router.post("/", async (req, res) => {
+// Main Controller Functions
+export const createReview = async (req, res) => {
   const { code, language } = req.body;
+  const modelQueue = ["gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.5-flash-lite"];
   
-  // List models in order of preference
-  const modelQueue = [
-    "gemini-3-flash-preview",  // 1. Try the smartest (Low Quota)
-    "gemini-2.5-flash",        // 2. Fallback to the stable workhorse (High Quota)
-    "gemini-2.5-flash-lite"    // 3. Final fallback for speed
-  ];
   let finalContent = "";
   let modelUsed = "";
 
   for (const currentModel of modelQueue) {
     try {
-      console.log(`[Review System] Attempting with: ${currentModel}`);
       finalContent = await runAgentSession(currentModel, code, language);
       modelUsed = currentModel;
-      break; // Success!
+      break; 
     } catch (err) {
-      // Check for Rate Limit (429) OR Missing Model (404)
       const canRetry = err.status === 429 || err.status === 404;
-      const isLastModel = currentModel === modelQueue[modelQueue.length - 1];
-
-      if (canRetry && !isLastModel) {
-        console.warn(`[System] ${currentModel} unavailable (Status: ${err.status}). Trying next...`);
-        continue; 
-      }
-      
-      // If it's the last model or a different error (Safety, 500), stop.
-      console.error(`[Fatal Error] Final attempt failed on ${currentModel}:`, err.message);
+      if (canRetry && currentModel !== modelQueue[modelQueue.length - 1]) continue;
       return res.status(500).json({ error: "Analysis failed. Please try again later." });
     }
   }
 
   try {
-    // 1. Parse the AI response first
     let parsedData;
     try {
       parsedData = JSON.parse(finalContent);
     } catch (e) {
-      // Fallback if AI didn't return perfect JSON
       parsedData = { summary: finalContent, issues: [], fixedCode: null };
     }
 
+    // AUTH UPDATE: Link to the logged-in user!
     const savedReview = await Review.create({
+      userId: req.user._id, // Provided by our new protect middleware
       code,
       language,
       summary: parsedData.summary,
@@ -99,22 +82,20 @@ router.post("/", async (req, res) => {
       fixedCode: parsedData.fixedCode
     });
 
-    // We include the database _id so the frontend knows it was saved
     res.json({ ...parsedData, modelUsed, id: savedReview._id });
-
   } catch (err) {
-    console.error("Database or Processing Error:", err);
     res.status(500).json({ error: "Failed to process and save review" });
   }
-});
+};
 
-router.get("/history", async (req, res) => {
+export const getHistory = async (req, res) => {
   try {
-    const history = await Review.find().sort({ createdAt: -1 }).limit(10);
+    // AUTH UPDATE: Fetch ONLY reviews for the current user
+    const history = await Review.find({ userId: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(10);
     res.json(history);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch history" });
   }
-});
-
-export default router;
+};
