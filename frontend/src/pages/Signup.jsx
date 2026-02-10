@@ -25,7 +25,6 @@ export default function Signup() {
 
       setMessage(response.data.message); // "Success! Check your email..."
       // Optionally redirect to login after a delay
-      setTimeout(() => navigate('/login'), 5000);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }

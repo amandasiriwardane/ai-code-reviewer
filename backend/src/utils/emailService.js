@@ -3,22 +3,30 @@ import nodemailer from 'nodemailer'; // Use import instead of require
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // Must be false for port 587
+  secure: false, 
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.EMAIL_PASS, 
   },
   tls: {
-    rejectUnauthorized: false
+    rejectUnauthorized: false,
+    minVersion: "TLSv1.2"
   },
-  connectionTimeout: 15000, // 15 seconds
-  family: 4 // Keep this to ensure we stick to IPv4
+  connectionTimeout: 30000, // Increase to 30 seconds for Render
+  greetingTimeout: 30000,   // Wait longer for Google to "say hello"
+  family: 4 
 });
 
 // Use 'export const' so authController can find the named export
 export const sendVerificationEmail = async (email, token) => {
   const verificationUrl = `${process.env.FRONTEND_URL}/verify/${token}`;
 
+  // LOG THIS SO YOU CAN MANUALLY VERIFY IN RENDER LOGS!
+  console.log("------------------------------------------");
+  console.log("DEBUG: Verification URL for", email, "is:");
+  console.log(verificationUrl);
+  console.log("------------------------------------------");
+  
   await transporter.sendMail({
     from: '"AmazAI Support" <no-reply@amazai.com>',
     to: email,
