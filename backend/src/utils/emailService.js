@@ -1,11 +1,19 @@
 import nodemailer from 'nodemailer'; // Use import instead of require
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // Use true for port 465
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // App-specific password from .env
+    pass: process.env.EMAIL_PASS, // Your 16-character App Password
   },
+  // ADD THIS SECTION:
+  tls: {
+    rejectUnauthorized: false // Helps avoid local certificate issues
+  },
+  connectionTimeout: 10000,
+  family: 4 // FORCES THE USE OF IPv4 TO AVOID ENETUNREACH
 });
 
 // Use 'export const' so authController can find the named export
