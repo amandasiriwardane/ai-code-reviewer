@@ -19,7 +19,9 @@ export const registerUser = async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const user = await User.create({ email, password, verificationToken });
 
-    await sendVerificationEmail(user.email, verificationToken);
+    sendVerificationEmail(user.email, verificationToken).catch(err => {
+      console.error("BACKGROUND EMAIL ERROR:", err.message);
+    });
     res.status(201).json({ message: "Success! Check your email to verify account." });
   } catch (err) {
     res.status(500).json({ message: err.message });
