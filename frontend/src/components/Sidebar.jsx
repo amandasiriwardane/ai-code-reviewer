@@ -1,25 +1,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../api/config";
 import "../styles/sidebar.css";
+import api from "../api/config";
 
 export default function Sidebar({ onSelect, currentId, triggerRefresh, isSidebarOpen }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchHistory = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/review/history`);
-      if (!res.ok) throw new Error("Failed to fetch history");
-      
-      const data = await res.json();
-      setHistory(data);
-    } catch (err) {
-      console.error("History fetch failed:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  setLoading(true);
+  try {
+    // No headers needed here anymore! The interceptor handles it.
+    const res = await api.get("/api/review/history");
+    setHistory(res.data);
+  } catch (err) {
+    console.error("History fetch failed:", err);
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     fetchHistory();

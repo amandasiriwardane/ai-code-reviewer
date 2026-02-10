@@ -3,6 +3,7 @@ import Editor from "@monaco-editor/react";
 import "../styles/promptInput.css";
 import { API_BASE_URL } from "../api/config";
 
+
 export default function PromptInput({code, setCode, setResult }) {
   const [language, setLanguage] = useState("javascript");
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,8 @@ export default function PromptInput({code, setCode, setResult }) {
 
   // Inside PromptInput.jsx analyze function
   const analyze = async () => {
+    const token = localStorage.getItem('token'); // Retrieve the token
+  
     setLoading(true);
     setFixedCode(null); // Reset previous fix
 
@@ -29,9 +32,18 @@ export default function PromptInput({code, setCode, setResult }) {
     try {
       const res = await fetch(`${API_BASE_URL}/api/review`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // Add the token here
+        },
         body: JSON.stringify({ code, language })
       });
+      
+      if (res.status === 401) {
+        console.error("Session expired. Please log in again.");
+        return;
+      }
+
       const data = await res.json();
       setResult(data);
       setFixedCode(data.fixedCode); // This enables the "Apply AI Fix" button
